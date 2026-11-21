@@ -46,7 +46,7 @@ jobs:
       - name: Compile unsigned iOS binary
         run: |
           SDK=$(xcrun --sdk iphoneos --show-sdk-path)
-          xcrun swiftc -sdk "$SDK" -target arm64-apple-ios13.0 -O ios/SkyApp.swift -o astrolab
+          xcrun swiftc -sdk "$SDK" -target arm64-apple-ios13.0 -O -parse-as-library ios/SkyApp.swift -o astrolab
       - name: Package unsigned IPA
         run: |
           mkdir -p Payload/astrolab.app
