@@ -1,0 +1,14 @@
+{
+  "name": "أسطرلاب — أطلس السماء العربي",
+  "short_name": "أسطرلاب",
+  "description": "أطلس سماء عربي تفاعلي يعمل بلا إنترنت: النجوم والكوكبات والكواكب ومنازل القمر والأسطرلاب والأقمار الصناعية ودروس للأطفال.",
+  "lang": "ar", "dir": "rtl",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#050b18",
+  "theme_color": "#050b18",
+  "icons": [
+    {"src": "assets/icon.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "assets/icon.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable"}
+  ]
+}
