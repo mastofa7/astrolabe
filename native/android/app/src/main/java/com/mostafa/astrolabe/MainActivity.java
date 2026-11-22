@@ -1,6 +1,7 @@
 package com.mostafa.astrolabe;
 import android.app.Activity;
 import android.os.Bundle;
+import android.os.Handler;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -22,9 +23,18 @@ public class MainActivity extends Activity implements SensorEventListener {
   private final float[] geom = new float[3];
   private boolean haveGrav = false, haveGeom = false;
   private long lastSend = 0;
-  private double lastAz = 9999, lastAlt = 9999;
-  private double smAz = Double.NaN, smAlt = Double.NaN;
-  private static final double SMOOTH = 0.12;
+  private double smA = Double.NaN, smB = Double.NaN, smG = Double.NaN;
+  private static final double SMOOTH = 0.25;
+  private volatile boolean pageHasEvents = false;
+  private final Handler handler = new Handler();
+  private final Runnable probe = new Runnable() {
+    @Override public void run() {
+      web.evaluateJavascript("window.__bridgeEvents|0", v -> {
+        try { if (Integer.parseInt(v.replace("\"","").trim()) > 0) pageHasEvents = true; } catch (Exception ignore) {}
+      });
+      handler.postDelayed(this, 1500);
+    }
+  };
 
   @Override protected void onCreate(Bundle b) {
     super.onCreate(b);
@@ -36,7 +46,6 @@ public class MainActivity extends Activity implements SensorEventListener {
     web.setWebViewClient(new WebViewClient() {
       @Override public void onPageFinished(WebView view, String url) {
         view.evaluateJavascript("try{window.__astrolabNative='android'}catch(e){}", null);
-        sendStatus();
       }
     });
     web.setWebChromeClient(new WebChromeClient() {
@@ -51,8 +60,9 @@ public class MainActivity extends Activity implements SensorEventListener {
     gameVec = sm.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR);
     accel = sm.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
     mag = sm.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
-    web.loadUrl("file:///android_asset/www/index.html");
+    web.loadUrl("file:///android_asset/www/atlas/index.html");
     setContentView(web);
+    handler.postDelayed(probe, 2000);
   }
 
   @Override protected void onResume() {
@@ -63,13 +73,6 @@ public class MainActivity extends Activity implements SensorEventListener {
       sm.registerListener(this, accel, SensorManager.SENSOR_DELAY_GAME);
       sm.registerListener(this, mag, SensorManager.SENSOR_DELAY_GAME);
     } else activeKind = 0;
-    sendStatus();
-  }
-
-  private void sendStatus() {
-    String kind = activeKind == 1 ? "rotvec" : activeKind == 2 ? "game" : activeKind == 3 ? "accmag" : "none";
-    final String js = "try{window.__astrolabSensorStatus&&window.__astrolabSensorStatus('" + kind + "')}catch(e){}";
-    web.evaluateJavascript(js, null);
   }
 
   @Override protected void onPause() {
@@ -79,7 +82,13 @@ public class MainActivity extends Activity implements SensorEventListener {
 
   @Override public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
+  private static double circSmooth(double prev, double cur, double range) {
+    double d = ((cur - prev + range * 1.5) % range) - range / 2.0;
+    return (prev + SMOOTH * d + range) % range;
+  }
+
   @Override public void onSensorChanged(SensorEvent e) {
+    if (pageHasEvents) return; // WebView delivers real orientation events itself
     float[] R = new float[9];
     int t = e.sensor.getType();
     if (t == Sensor.TYPE_ROTATION_VECTOR || t == Sensor.TYPE_GAME_ROTATION_VECTOR) {
@@ -93,24 +102,23 @@ public class MainActivity extends Activity implements SensorEventListener {
       if (!haveGrav) return;
       if (!SensorManager.getRotationMatrix(R, null, grav, geom)) return;
     } else return;
-    double alt = Math.toDegrees(Math.asin(Math.max(-1.0, Math.min(1.0, -(double) R[8]))));
-    double az = (Math.toDegrees(Math.atan2(-(double) R[2], -(double) R[5])) + 360.0) % 360.0;
-    if (Double.isNaN(smAz)) { smAz = az; smAlt = alt; }
+    // W3C DeviceOrientation: R = Rz(alpha)·Rx(beta)·Ry(gamma), row-major R
+    double alpha = (Math.toDegrees(Math.atan2(-(double) R[1], (double) R[4])) + 360.0) % 360.0;
+    double beta = Math.toDegrees(Math.asin(Math.max(-1.0, Math.min(1.0, (double) R[7]))));
+    double gamma = Math.toDegrees(Math.atan2(-(double) R[6], (double) R[8]));
+    if (Double.isNaN(smA)) { smA = alpha; smB = beta; smG = gamma; }
     else {
-      double dAz = ((az - smAz + 540.0) % 360.0) - 180.0;
-      smAz = (smAz + SMOOTH * dAz + 360.0) % 360.0;
-      smAlt = smAlt + SMOOTH * (alt - smAlt);
+      smA = circSmooth(smA, alpha, 360.0);
+      smB = smB + SMOOTH * (beta - smB);
+      smG = circSmooth(smG, (gamma + 540.0) % 360.0 - 180.0 + 360.0, 360.0);
+      if (smG > 180.0) smG -= 360.0;
     }
     long now = System.currentTimeMillis();
-    if (now - lastSend < 40) return;
-    double dz = ((smAz - lastAz + 540.0) % 360.0) - 180.0;
-    if (Math.abs(dz) < 0.05 && Math.abs(smAlt - lastAlt) < 0.05 && now - lastSend < 500) return;
-    lastSend = now; lastAz = smAz; lastAlt = smAlt;
-    double alpha = (360.0 - smAz) % 360.0;
-    double beta = smAlt + 90.0;
+    if (now - lastSend < 33) return;
+    lastSend = now;
     final String js = String.format(Locale.US,
-      "try{if(window.__astrolabOrient){window.__astrolabOrient(%f,%f)}else{window.dispatchEvent(new DeviceOrientationEvent('deviceorientation',{alpha:%f,beta:%f,gamma:0,absolute:true}))}}catch(err){try{var ev=document.createEvent('Event');ev.initEvent('deviceorientation',true,true);ev.alpha=%f;ev.beta=%f;ev.gamma=0;ev.absolute=true;window.dispatchEvent(ev)}catch(e2){}}",
-      smAz, smAlt, alpha, beta, alpha, beta);
+      "try{window.dispatchEvent(new DeviceOrientationEvent('deviceorientationabsolute',{alpha:%f,beta:%f,gamma:%f,absolute:true}))}catch(err){try{var ev=document.createEvent('Event');ev.initEvent('deviceorientationabsolute',true,true);ev.alpha=%f;ev.beta=%f;ev.gamma=%f;ev.absolute=true;window.dispatchEvent(ev)}catch(e2){}}",
+      smA, smB, smG, smA, smB, smG);
     web.evaluateJavascript(js, null);
   }
 
