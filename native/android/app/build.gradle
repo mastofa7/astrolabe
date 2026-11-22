@@ -1,0 +1,12 @@
+plugins { id 'com.android.application' }
+android {
+  namespace 'com.mostafa.astrolabe'
+  compileSdk 34
+  defaultConfig {
+    applicationId "com.mostafa.astrolabe"
+    minSdk 24
+    targetSdk 34
+    versionCode 5
+    versionName "1.4"
+  }
+}
