@@ -912,4 +912,47 @@ if("serviceWorker" in navigator && location.protocol.startsWith("http")){
   }).catch(()=>{});
   if(!slow) addEventListener("load",()=>window.requestIdleCallback?requestIdleCallback(go,{timeout:5000}):setTimeout(go,3000));
 }
-</script><a id="btnAstrolabeInstrument" href="../astrolabe/index.html#astrolabe" aria-label="الأسطرلاب" style="position:fixed;top:max(64px,calc(env(safe-area-inset-top) + 56px));inset-inline-start:10px;z-index:99998;display:flex;align-items:center;gap:6px;background:rgba(10,15,30,.85);color:#e0b34f;border:1px solid #e0b34f;font:700 14px sans-serif;padding:8px 14px;border-radius:20px;text-decoration:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="13" r="8"/><circle cx="12" cy="13" r="4.5"/><path d="M12 5v3"/><circle cx="12" cy="3.2" r="1.6"/></svg>الأسطرلاب</a></body></html>
+</script><a id="btnAstrolabeInstrument" href="../astrolabe/index.html#astrolabe" aria-label="الأسطرلاب" style="position:fixed;top:max(64px,calc(env(safe-area-inset-top) + 56px));inset-inline-start:10px;z-index:99998;display:flex;align-items:center;gap:6px;background:rgba(10,15,30,.85);color:#e0b34f;border:1px solid #e0b34f;font:700 14px sans-serif;padding:8px 14px;border-radius:20px;text-decoration:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="13" r="8"/><circle cx="12" cy="13" r="4.5"/><path d="M12 5v3"/><circle cx="12" cy="3.2" r="1.6"/></svg>الأسطرلاب</a><button id="btnAppUpdate" aria-label="تحديث التطبيق" style="position:fixed;top:max(112px,calc(env(safe-area-inset-top) + 104px));inset-inline-start:10px;z-index:99998;display:flex;align-items:center;gap:6px;background:rgba(10,15,30,.85);color:#e0b34f;border:1px solid #e0b34f;font:700 14px sans-serif;padding:8px 14px;border-radius:20px;cursor:pointer">&#10227; تحديث</button>
+<script>
+window.__APP_VERSION='1.8.0';
+(function(){
+  var REPO='mastofa7/astrolabe';
+  function cmp(a,b){var x=a.replace(/^v/,'').split('.'),y=b.replace(/^v/,'').split('.');
+    for(var i=0;i<3;i++){var d=(parseInt(x[i]||0,10))-(parseInt(y[i]||0,10));if(d)return d;}return 0;}
+  function el(t,style,html){var e=document.createElement(t);if(style)e.setAttribute('style',style);if(html!=null)e.innerHTML=html;return e;}
+  document.getElementById('btnAppUpdate').addEventListener('click',function(){
+    var old=document.getElementById('updPanel'); if(old){old.remove();}
+    var wrap=el('div','position:fixed;inset:0;z-index:999999;background:rgba(4,8,20,.7);display:flex;align-items:center;justify-content:center;padding:20px');
+    wrap.id='updPanel';
+    var box=el('div','background:#0a0f1e;border:1px solid #e0b34f;border-radius:16px;padding:20px;max-width:340px;width:100%;color:#dfe7f5;font:15px/1.8 sans-serif;text-align:center');
+    box.appendChild(el('div','color:#e0b34f;font-weight:700;font-size:17px','تحديث التطبيق'));
+    var body=el('div','margin-top:8px','الإصدار الحالي: '+window.__APP_VERSION+'<br>...بفحص آخر إصدار على GitHub');
+    box.appendChild(body);
+    var btn=el('button','margin-top:12px;background:none;border:1px solid #7a869e;color:#9fb0cc;padding:6px 16px;border-radius:16px;font:14px sans-serif;cursor:pointer','إغلاق');
+    btn.onclick=function(){wrap.remove();};
+    box.appendChild(btn);
+    wrap.appendChild(box);
+    wrap.addEventListener('click',function(e){if(e.target===wrap)wrap.remove();});
+    document.body.appendChild(wrap);
+    fetch('https://api.github.com/repos/'+REPO+'/releases/latest').then(function(r){return r.json();}).then(function(j){
+      var tag=(j.tag_name||'').trim();
+      if(!tag){body.innerHTML='تعذّر معرفة آخر إصدار.<br><a style="color:#e0b34f" href="https://github.com/'+REPO+'/releases">صفحة الإصدارات</a>';return;}
+      var isNew=cmp(tag,window.__APP_VERSION)>0;
+      var isIos=/iPad|iPhone|iPod/.test(navigator.userAgent);
+      var isAnd=/Android/i.test(navigator.userAgent);
+      var h='الإصدار الحالي: '+window.__APP_VERSION+'<br>آخر إصدار على GitHub: '+tag+'<br>';
+      if(isNew){
+        h+='<div style="color:#e0b34f;font-weight:700;margin-top:6px">يوجد إصدار أحدث!</div>';
+        if(isAnd) h+='<a style="display:block;margin-top:10px;background:#e0b34f;color:#050b18;padding:10px;border-radius:12px;text-decoration:none;font-weight:700" href="https://github.com/'+REPO+'/releases/latest/download/astrolab.apk">تحميل astrolab.apk</a><div style="font-size:12px;color:#9fb0cc;margin-top:4px">يُفتح التحميل في المتصفح، ثم ثبّت الملف بعد اكتماله (قد يطلب إذن «تثبيت تطبيقات غير معروفة»).</div>';
+        else if(isIos) h+='<a style="display:block;margin-top:10px;background:#e0b34f;color:#050b18;padding:10px;border-radius:12px;text-decoration:none;font-weight:700" href="https://github.com/'+REPO+'/releases/latest/download/astrolab.ipa">تحميل astrolab.ipa</a><div style="font-size:12px;color:#9fb0cc;margin-top:4px">آيفون لا يستطيع التحديث الذاتي: ثبّت الملف عبر AltStore أو Sideloadly، أو استخدم نسخة الويب وهي محدّثة دائمًا.</div>';
+        else h+='<button onclick="location.reload(true)" style="display:block;width:100%;margin-top:10px;background:#e0b34f;color:#050b18;padding:10px;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer">تحديث الصفحة الآن</button>';
+        h+='<a style="display:block;margin-top:8px;color:#9fb0cc;font-size:13px" href="'+j.html_url+'">ما الجديد في هذا الإصدار</a>';
+      } else {
+        h+='<div style="color:#7ee787;font-weight:700;margin-top:6px">✓ أنت على أحدث إصدار</div>';
+      }
+      body.innerHTML=h;
+    }).catch(function(){body.innerHTML='تعذّر الفحص — تحقّق من اتصال الإنترنت ثم أعد المحاولة.<br><span style="font-size:12px;color:#9fb0cc">الفحص لا يعمل إلا بالإنترنت؛ التطبيق نفسه يعمل بلا إنترنت.</span>';});
+  });
+})();
+</script>
+</body></html>

@@ -11,6 +11,8 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.WebChromeClient;
 import android.webkit.GeolocationPermissions;
+import android.content.Intent;
+import android.net.Uri;
 import android.content.pm.PackageManager;
 import java.util.Locale;
 
@@ -47,6 +49,16 @@ public class MainActivity extends Activity implements SensorEventListener {
       @Override public void onPageFinished(WebView view, String url) {
         view.evaluateJavascript("try{window.__astrolabNative='android'}catch(e){}", null);
       }
+      @Override public boolean shouldOverrideUrlLoading(WebView view, String url) {
+        if (url != null && (url.startsWith("http://") || url.startsWith("https://"))) {
+          try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception ignore) {}
+          return true;
+        }
+        return false;
+      }
+    });
+    web.setDownloadListener((url, ua, cd, mime, len) -> {
+      try { startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url))); } catch (Exception ignore) {}
     });
     web.setWebChromeClient(new WebChromeClient() {
       @Override public void onGeolocationPermissionsShowPrompt(String origin, GeolocationPermissions.Callback cb) {

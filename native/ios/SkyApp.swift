@@ -40,6 +40,15 @@ class SkyViewController: UIViewController, WKNavigationDelegate {
         }
     }
 
+    func webView(_ webView: WKWebView, decidePolicyFor navigationAction: WKNavigationAction, decisionHandler: @escaping (WKNavigationActionPolicy) -> Void) {
+        if let u = navigationAction.request.url, (u.scheme == "http" || u.scheme == "https"), navigationAction.navigationType == .linkActivated {
+            UIApplication.shared.open(u)
+            decisionHandler(.cancel)
+            return
+        }
+        decisionHandler(.allow)
+    }
+
     func webView(_ webView: WKWebView, didFinish navigation: WKNavigation!) {
         webView.evaluateJavaScript("try{window.__astrolabNative='ios';window.__astrolabSensorStatus&&window.__astrolabSensorStatus('coremotion')}catch(e){}", completionHandler: nil)
     }
