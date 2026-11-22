@@ -18,6 +18,13 @@ jobs:
           cp -r native/android android
           mkdir -p android/app/src/main/assets
           cp -r www android/app/src/main/assets/www
+      - name: Restore stable signing key
+        env:
+          SIGNING_KEY: ${{ secrets.ASTROLABE_SIGNING_KEY }}
+        run: |
+          test -n "$SIGNING_KEY" || { echo "Signing key missing"; exit 1; }
+          printf '%s' "$SIGNING_KEY" | base64 --decode > "$RUNNER_TEMP/astrolabe.jks"
+          echo "ASTROLABE_KEYSTORE=$RUNNER_TEMP/astrolabe.jks" >> "$GITHUB_ENV"
       - name: Build debug APK
         run: |
           cd android
@@ -56,9 +63,9 @@ jobs:
       - name: Release
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: v1.8.0
-          name: أسطرلاب v1.8.0
-          body: "أسطرلاب v1.8.0 — زر «تحديث» جديد داخل التطبيق: يفحص آخر إصدار على جيت هاب عند الضغط عليه فقط (لا يستهلك إنترنت إلا عند الطلب)، ويعرض رابط تحميل النسخة الجديدة على أندرويد (APK يُحمَّل عبر المتصفح ثم يُثبَّت بإذنك)، وعلى آيفون يوضح أن التثبيت يكون عبر AltStore أو Sideloadly لأن آيفون لا يدعم التحديث الذاتي، ونسخة الويب تُحدَّث بإعادة تحميل الصفحة. كما فُتحت الروابط الخارجية في متصفح الجهاز، وأُضيفت صفحة تحويل www/index.html لفتح الأطلس مباشرة (تحسين لنسخة iOS). كل مزايا العمل بلا إنترنت كما هي، وكود الحركة دون تغيير. أندرويد: astrolab.apk (احذف النسخة القديمة أولًا)."
+          tag_name: v1.9.0
+          name: أسطرلاب v1.9.0
+          body: "أسطرلاب v1.9.0: تنزيل تحديث APK من داخل تطبيق أندرويد مع عرض التقدم والتحقق من SHA-256، ثم فتح شاشة تثبيت النظام. قد يطلب أندرويد السماح بالتثبيت من أسطرلاب مرة واحدة. لا يوجد تثبيت صامت. زر «عن المطور» يعرض نبذة عن مصطفى محمود وموقع سيرته الذاتية ورابط واتساب بطلبه. العمل بلا إنترنت وكود الحركة كما هما. هذا الإصدار يبدأ توقيعًا ثابتًا للتحديثات القادمة؛ عند الانتقال من إصدار أقدم قد تحتاج حذف النسخة القديمة أولًا (يحذف إعداداتها المحلية). آيفون: IPA غير موقّع للتثبيت عبر AltStore/Sideloadly، لا تحديث ذاتي."
           files: |
             astrolab.apk
             astrolab.ipa

@@ -914,7 +914,7 @@ if("serviceWorker" in navigator && location.protocol.startsWith("http")){
 }
 </script><a id="btnAstrolabeInstrument" href="../astrolabe/index.html#astrolabe" aria-label="الأسطرلاب" style="position:fixed;top:max(64px,calc(env(safe-area-inset-top) + 56px));inset-inline-start:10px;z-index:99998;display:flex;align-items:center;gap:6px;background:rgba(10,15,30,.85);color:#e0b34f;border:1px solid #e0b34f;font:700 14px sans-serif;padding:8px 14px;border-radius:20px;text-decoration:none"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="12" cy="13" r="8"/><circle cx="12" cy="13" r="4.5"/><path d="M12 5v3"/><circle cx="12" cy="3.2" r="1.6"/></svg>الأسطرلاب</a><button id="btnAppUpdate" aria-label="تحديث التطبيق" style="position:fixed;top:max(112px,calc(env(safe-area-inset-top) + 104px));inset-inline-start:10px;z-index:99998;display:flex;align-items:center;gap:6px;background:rgba(10,15,30,.85);color:#e0b34f;border:1px solid #e0b34f;font:700 14px sans-serif;padding:8px 14px;border-radius:20px;cursor:pointer">&#10227; تحديث</button>
 <script>
-window.__APP_VERSION='1.8.0';
+window.__APP_VERSION='1.9.0';
 (function(){
   var REPO='mastofa7/astrolabe';
   function cmp(a,b){var x=a.replace(/^v/,'').split('.'),y=b.replace(/^v/,'').split('.');
@@ -943,7 +943,7 @@ window.__APP_VERSION='1.8.0';
       var h='الإصدار الحالي: '+window.__APP_VERSION+'<br>آخر إصدار على GitHub: '+tag+'<br>';
       if(isNew){
         h+='<div style="color:#e0b34f;font-weight:700;margin-top:6px">يوجد إصدار أحدث!</div>';
-        if(isAnd) h+='<a style="display:block;margin-top:10px;background:#e0b34f;color:#050b18;padding:10px;border-radius:12px;text-decoration:none;font-weight:700" href="https://github.com/'+REPO+'/releases/latest/download/astrolab.apk">تحميل astrolab.apk</a><div style="font-size:12px;color:#9fb0cc;margin-top:4px">يُفتح التحميل في المتصفح، ثم ثبّت الملف بعد اكتماله (قد يطلب إذن «تثبيت تطبيقات غير معروفة»).</div>';
+        if(isAnd) h+='<a style="display:block;margin-top:10px;background:#e0b34f;color:#050b18;padding:10px;border-radius:12px;text-decoration:none;font-weight:700" href="https://github.com/'+REPO+'/releases/latest/download/astrolab.apk">تنزيل التحديث وتثبيته</a><div style="font-size:12px;color:#9fb0cc;margin-top:4px">داخل تطبيق أندرويد: يُنزّل الملف هنا ثم تظهر شاشة تثبيت أندرويد. قد تحتاج السماح لأسطرلاب بالتثبيت مرة واحدة. من المتصفح: حمّل الملف وثبّته يدويًا.</div>';
         else if(isIos) h+='<a style="display:block;margin-top:10px;background:#e0b34f;color:#050b18;padding:10px;border-radius:12px;text-decoration:none;font-weight:700" href="https://github.com/'+REPO+'/releases/latest/download/astrolab.ipa">تحميل astrolab.ipa</a><div style="font-size:12px;color:#9fb0cc;margin-top:4px">آيفون لا يستطيع التحديث الذاتي: ثبّت الملف عبر AltStore أو Sideloadly، أو استخدم نسخة الويب وهي محدّثة دائمًا.</div>';
         else h+='<button onclick="location.reload(true)" style="display:block;width:100%;margin-top:10px;background:#e0b34f;color:#050b18;padding:10px;border:none;border-radius:12px;font-weight:700;font-size:15px;cursor:pointer">تحديث الصفحة الآن</button>';
         h+='<a style="display:block;margin-top:8px;color:#9fb0cc;font-size:13px" href="'+j.html_url+'">ما الجديد في هذا الإصدار</a>';
@@ -955,4 +955,13 @@ window.__APP_VERSION='1.8.0';
   });
 })();
 </script>
-</body></html>
+<button id="btnDeveloper" aria-label="عن المطور" style="position:fixed;top:max(160px,calc(env(safe-area-inset-top) + 152px));inset-inline-start:10px;z-index:99998;background:rgba(10,15,30,.85);color:#e0b34f;border:1px solid #e0b34f;font:700 14px sans-serif;padding:8px 14px;border-radius:20px;cursor:pointer">عن المطور</button>
+<dialog id="developerPanel" dir="rtl" style="background:#0a0f1e;color:#dfe7f5;border:1px solid #e0b34f;border-radius:18px;padding:24px;width:calc(100% - 60px);max-width:350px;max-height:80vh;overflow:auto;font:16px/1.9 sans-serif;text-align:right">
+<h2 style="color:#e0b34f;margin:0 0 12px">عن المطور</h2><h3 style="margin:0">مصطفى محمود</h3>
+<p>مطور تطبيق «أسطرلاب»، ومحقق تراث إسلامي وباحث في المخطوطات العربية، ومؤسس مركز المصطفى لخدمة التراث الإسلامي.</p>
+<p>يجمع في هذا التطبيق اهتمامه بالمعرفة العربية واستخدام التقنية لتقريب علوم السماء.</p>
+<a style="display:block;color:#e0b34f;padding:9px 0" href="https://mastofa7.github.io/">الموقع الشخصي والسيرة الذاتية ↗</a>
+<a style="display:block;color:#e0b34f;padding:9px 0" href="https://wa.me/201065970087">التواصل عبر واتساب: <bdi>+20 106 597 0087</bdi> ↗</a>
+<p style="font-size:12px;color:#9fb0cc">النبذة متاحة بلا إنترنت؛ فتح روابط التواصل يحتاج اتصالًا.</p>
+<button id="closeDeveloper" style="background:none;color:#dfe7f5;border:1px solid #9fb0cc;border-radius:12px;padding:8px 20px;font-size:15px">إغلاق</button></dialog>
+<script>document.getElementById('btnDeveloper').onclick=function(){document.getElementById('developerPanel').showModal()};document.getElementById('closeDeveloper').onclick=function(){document.getElementById('developerPanel').close()};</script></body></html>
